@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>In-Browser LLM Chat</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Import Web-LLM as a module with the correct URL -->
+    <script type="module">
+        import * as webllm from "./web-llm.js";
+        window.webllm = webllm; // Make it globally accessible
+    </script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>In-Browser LLM Chat</h1>
+            <div class="model-selector">
+                <label for="model-select">Select Model:</label>
+                <select id="model-select">
+                    <option value="Llama-2-7b-chat-hf-q4f16_1">Llama-2-7b-chat-hf (4-bit)</option>
+                    <option value="RedPajama-INCITE-Chat-3B-v1-q4f16_1">RedPajama-INCITE-Chat-3B (4-bit)</option>
+                    <option value="TinyLlama-1.1B-Chat-v1.0-q4f16_1">TinyLlama-1.1B-Chat (4-bit)</option>
+                </select>
+                <button id="load-model">Load Model</button>
+            </div>
+            <div id="status">Status: Model not loaded</div>
+        </header>
+
+        <div class="chat-container">
+            <div id="chat-messages"></div>
+        </div>
+
+        <div class="input-area">
+            <textarea id="user-input" placeholder="Type your message here..."></textarea>
+            <button id="send-button" disabled>Send</button>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
