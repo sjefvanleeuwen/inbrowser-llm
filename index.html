@@ -5,6 +5,92 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>In-Browser LLM Chat</title>
     <link rel="stylesheet" href="styles.css">
+    <!-- Add Prism CSS for syntax highlighting -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism.min.css">
+    <style>
+        /* Markdown styling */
+        .message.assistant .content h1 {
+            font-size: 1.8em;
+            margin-top: 0.8em;
+            margin-bottom: 0.5em;
+        }
+        
+        .message.assistant .content h2 {
+            font-size: 1.5em;
+            margin-top: 0.7em;
+            margin-bottom: 0.5em;
+        }
+        
+        .message.assistant .content h3 {
+            font-size: 1.3em;
+            margin-top: 0.6em;
+            margin-bottom: 0.5em;
+        }
+        
+        .message.assistant .content p {
+            margin-bottom: 1em;
+        }
+        
+        .message.assistant .content ul, 
+        .message.assistant .content ol {
+            margin-left: 1.5em;
+            margin-bottom: 1em;
+        }
+        
+        .message.assistant .content li {
+            margin-bottom: 0.5em;
+        }
+        
+        .message.assistant .content a {
+            color: #0366d6;
+            text-decoration: none;
+        }
+        
+        .message.assistant .content a:hover {
+            text-decoration: underline;
+        }
+        
+        .message.assistant .content blockquote {
+            border-left: 3px solid #dfe2e5;
+            color: #6a737d;
+            padding-left: 1em;
+            margin-left: 0;
+        }
+        
+        .message.assistant .content code {
+            background-color: rgba(27, 31, 35, 0.05);
+            border-radius: 3px;
+            font-family: monospace;
+            padding: 0.2em 0.4em;
+        }
+        
+        .message.assistant .content pre {
+            background-color: #f6f8fa;
+            border-radius: 3px;
+            overflow-x: auto;
+            padding: 16px;
+            margin-bottom: 1em;
+        }
+        
+        .message.assistant .content pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+        
+        .message.assistant .content table {
+            border-collapse: collapse;
+            margin-bottom: 1em;
+            width: 100%;
+        }
+        
+        .message.assistant .content table th, 
+        .message.assistant .content table td {
+            border: 1px solid #dfe2e5;
+            padding: 6px 13px;
+        }
+        
+        /* ...existing styles... */
+    </style>
     <!-- Import Web-LLM as a module with the correct URL -->
     <script type="module">
         import * as webllm from "./web-llm.js";
@@ -38,5 +124,8 @@
     </div>
 
     <script src="app.js"></script>
+    <!-- Add Prism JS at the end of body -->
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
 </body>
 </html>

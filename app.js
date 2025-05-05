@@ -2,6 +2,7 @@ let chatModule;
 let isModelLoaded = false;
 let conversationHistory = []; // Add global variable for conversation history
 const MAX_HISTORY_LENGTH = 10; // Limit history size (adjust as needed)
+let markedLibrary; // Variable to hold the marked library reference
 
 // DOM Elements
 const modelSelect = document.getElementById('model-select');
@@ -11,9 +12,43 @@ const chatMessages = document.getElementById('chat-messages');
 const userInput = document.getElementById('user-input');
 const sendButton = document.getElementById('send-button');
 
+// Load the marked.js library dynamically
+function loadMarkedLibrary() {
+    return new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/marked/marked.min.js';
+        script.onload = () => {
+            // Configure marked options with proper code highlighting
+            marked.setOptions({
+                breaks: true,         // Enable GitHub Flavored Markdown line breaks
+                gfm: true,            // Enable GitHub Flavored Markdown
+                sanitize: false,      // Allow HTML in markdown
+                highlight: function(code, lang) {
+                    // If Prism is available, use it for syntax highlighting
+                    if (window.Prism && lang) {
+                        try {
+                            return window.Prism.highlight(code, window.Prism.languages[lang], lang);
+                        } catch (e) {
+                            console.warn('Language not supported by Prism:', lang);
+                        }
+                    }
+                    return code; // Return code as-is if Prism is not available or language is not supported
+                }
+            });
+            markedLibrary = marked; // Store the reference
+            resolve();
+        };
+        script.onerror = () => reject(new Error('Failed to load marked.js'));
+        document.head.appendChild(script);
+    });
+}
+
 // Initialize the chat module
 async function initChat() {
     try {
+        // Load the marked library
+        await loadMarkedLibrary();
+        
         // Check if webllm is available
         if (typeof window.webllm === 'undefined') {
             updateStatus('Waiting for Web-LLM to load...');
@@ -203,7 +238,20 @@ async function sendMessage() {
         // Extract the content from the non-streaming response
         if (response?.choices?.[0]?.message?.content) {
             const fullResponseText = response.choices[0].message.content;
-            assistantMsgElement.textContent = fullResponseText; // Update placeholder with full response
+            
+            // Update the DOM with markdown-rendered content
+            if (markedLibrary && assistantMsgElement) {
+                assistantMsgElement.innerHTML = markedLibrary.parse(fullResponseText);
+                
+                // Apply syntax highlighting to code blocks
+                if (window.Prism) {
+                    assistantMsgElement.querySelectorAll('pre code').forEach((block) => {
+                        window.Prism.highlightElement(block);
+                    });
+                }
+            } else {
+                assistantMsgElement.textContent = fullResponseText;
+            }
 
             // Add assistant response to history
             conversationHistory.push({ role: "assistant", content: fullResponseText });
@@ -263,12 +311,6 @@ function appendMessage(role, content) {
     // Only display user and assistant messages visually
     if (role === 'system') {
         console.log(`System message: ${content}`); // Log system messages instead of displaying
-        // Optionally, display system messages differently if needed
-        // const messageDiv = document.createElement('div');
-        // messageDiv.classList.add('message', 'system');
-        // messageDiv.textContent = `System: ${content}`;
-        // chatMessages.appendChild(messageDiv);
-        // chatMessages.scrollTop = chatMessages.scrollHeight;
         return null; // Return null as there's no content element to update later
     }
 
@@ -281,7 +323,31 @@ function appendMessage(role, content) {
     
     const messageContent = document.createElement('div');
     messageContent.classList.add('content');
-    messageContent.textContent = content;
+    
+    // Use markdown for assistant messages, plain text for user messages
+    if (role === 'assistant' && markedLibrary) {
+        // Render markdown content including code blocks
+        messageContent.innerHTML = markedLibrary.parse(content);
+        
+        // Process code blocks after rendering
+        setTimeout(() => {
+            // Add syntax highlighting for code blocks if Prism is available
+            if (window.Prism) {
+                messageContent.querySelectorAll('pre code').forEach((block) => {
+                    // Extract language class if it exists
+                    const classes = block.className.split(' ');
+                    const langClass = classes.find(c => c.startsWith('language-'));
+                    
+                    if (langClass) {
+                        // Apply Prism highlighting
+                        window.Prism.highlightElement(block);
+                    }
+                });
+            }
+        }, 0);
+    } else {
+        messageContent.textContent = content;
+    }
     
     messageDiv.appendChild(roleLabel);
     messageDiv.appendChild(messageContent);
